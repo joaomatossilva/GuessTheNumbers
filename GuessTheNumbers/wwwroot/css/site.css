@@ -20,3 +20,18 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+.digits input {
+  width: 2.5rem;
+  display: inline-block;
+}
+
+input[type="text"] {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
+}
+
+input[type="text"]:focus {
+    outline: none;
+}

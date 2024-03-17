@@ -1,5 +1,12 @@
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSession(options =>
+{
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddSingleton(TimeProvider.System);
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 
@@ -19,6 +26,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapRazorPages();
 
