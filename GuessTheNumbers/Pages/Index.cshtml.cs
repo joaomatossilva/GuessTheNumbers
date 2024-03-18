@@ -3,15 +3,16 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace GuessTheNumbers.Pages
 {
-    public class IndexModel(ILogger<IndexModel> logger, TimeProvider timeProvider) : PageModel
+    public class IndexModel(ILogger<IndexModel> logger, TimeProvider timeProvider, Evaluator evaluator) : PageModel
     {
         private const string ChallengeSessionKey = "challenge";
+        private const int ChallengeSize = 4;
 
         private readonly ILogger<IndexModel> _logger = logger;
         private readonly TimeProvider timeProvider = timeProvider;
         private static readonly Random Random = new Random();
 
-        public IEnumerable<string>  Attempts { get; private set; } = Enumerable.Empty<string>();
+        public IEnumerable<AttemptedViewModel>  Attempts { get; private set; } = Enumerable.Empty<AttemptedViewModel>();
         public bool Solved { get; private set; }
 
         public void OnGet()
@@ -24,13 +25,17 @@ namespace GuessTheNumbers.Pages
                     Date = DateOnly.FromDateTime(timeProvider.GetLocalNow().Date),
                     NumberAttempts = 0,
                     Solved = false,
-                    Solution = Random.Next(10_000).ToString() // Make this a better function no numbers repeated 
+                    Solution = GenerateNumber(ChallengeSize)
                 };
 
                 this.HttpContext.Session.Set(ChallengeSessionKey, challenge);
             }
 
-            Attempts = challenge.Attempts;
+            Attempts = Attempts = challenge.Attempts.Select(x => new AttemptedViewModel
+            {
+                Attempt = x,
+                Evaluation = evaluator.Evaluate(x, challenge.Solution)
+            });
             Solved = challenge.Solved;
         }
 
@@ -53,10 +58,30 @@ namespace GuessTheNumbers.Pages
 
             this.HttpContext.Session.Set(ChallengeSessionKey, challenge);
 
-            Attempts = challenge.Attempts;
+            Attempts = challenge.Attempts.Select(x => new AttemptedViewModel
+            {
+                Attempt = x,
+                Evaluation = evaluator.Evaluate(x, challenge.Solution)
+            });
             Solved = challenge.Solved;
 
             return Page();
+        }
+
+        private static string GenerateNumber(int size)
+        {
+            var digits = new HashSet<char>(size);
+            do
+            {
+                var rand = Random.Next(10);
+                var @char = (char)(rand + '0');
+                if (!digits.Contains(@char))
+                {
+                    digits.Add(@char);
+                }
+            } while (digits.Count < size);
+
+            return new string(digits.ToArray()); // find better allocation
         }
     }
 }

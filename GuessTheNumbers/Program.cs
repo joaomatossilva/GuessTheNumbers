@@ -1,3 +1,5 @@
+using GuessTheNumbers;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSession(options =>
@@ -6,6 +8,7 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton(new Evaluator());
 
 // Add services to the container.
 builder.Services.AddRazorPages();
