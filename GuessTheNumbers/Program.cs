@@ -9,6 +9,8 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton(new Evaluator());
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+//uilder.Services.AddTransient<ConfigMiddleware>();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -33,5 +35,6 @@ app.UseAuthorization();
 app.UseSession();
 
 app.MapRazorPages();
+app.UseMiddleware<ConfigMiddleware>();
 
 app.Run();
